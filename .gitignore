@@ -1,0 +1,20 @@
+# Binary
+kbx
+kubebx
+
+# Go
+*.exe
+*.exe~
+*.test
+*.out
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
