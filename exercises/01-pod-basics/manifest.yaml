@@ -1,0 +1,4 @@
+id: "01"
+name: "Pod basics"
+type: "build"
+description: "Create your first pod and understand basic Kubernetes concepts"
