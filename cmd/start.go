@@ -48,10 +48,13 @@ var startCmd = &cobra.Command{
 		}
 
 		fmt.Println("\n✅ Exercise environment ready!")
+		fmt.Println("\n💡 Using kubectl:")
+		fmt.Println("   Use 'kbx kubectl' for all kubectl commands")
+		fmt.Println("   Example: kbx kubectl get pods -n kbx-01")
 		fmt.Println("\n📖 Next steps:")
 		readmePath := filepath.Join(ex.Path, "README.md")
 		fmt.Printf("   1. Read instructions: cat %s\n", readmePath)
-		fmt.Printf("   2. Work on the exercise using kubectl\n")
+		fmt.Printf("   2. Work on the exercise using 'kbx kubectl'\n")
 		fmt.Printf("   3. Check your solution: kbx check %s\n", ex.ID)
 		fmt.Printf("   4. Need help? kbx hint %s\n", ex.ID)
 	},
