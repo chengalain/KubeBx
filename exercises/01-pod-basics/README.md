@@ -21,9 +21,9 @@ Create your first Kubernetes pod and understand the basic concepts.
 
 ## 💡 Tips
 
-- Use `kubectl run` to create a pod quickly
-- Use `kubectl get pods -n kbx-01` to check status
-- Use `kubectl describe pod <name> -n kbx-01` for details
+- Use `kbx kubectl run` to create a pod quickly
+- Use `kbx kubectl get pods -n kbx-01` to check status
+- Use `kbx kubectl describe pod <name> -n kbx-01` for details
 
 ## 🆘 Stuck?
 
