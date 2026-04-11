@@ -1,0 +1,10 @@
+# Initial setup for exercise 01
+# This creates a namespace for the exercise
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kbx-01
+  labels:
+    exercise: "01"
+    app.kubernetes.io/managed-by: kubebx
