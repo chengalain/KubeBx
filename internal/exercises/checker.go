@@ -26,6 +26,8 @@ func NewChecker(exerciseID string) (Checker, error) {
 	switch exerciseID {
 	case "01":
 		return &Exercise01Checker{}, nil
+	case "02":
+		return &Exercise02Checker{}, nil
 	default:
 		return nil, fmt.Errorf("no checker available for exercise %s", exerciseID)
 	}
@@ -84,6 +86,80 @@ func (c *Exercise01Checker) Check(clientset *kubernetes.Clientset) (*CheckResult
 		} else {
 			result.Success = false
 			result.Failures = append(result.Failures, "❌ Container is not ready")
+		}
+	}
+
+	if result.Success {
+		result.Message = "All checks passed! 🎉"
+	} else {
+		result.Message = "Some checks failed"
+	}
+
+	return result, nil
+}
+
+// Exercise02Checker checks exercise 02 (Labels & Selectors)
+type Exercise02Checker struct{}
+
+func (c *Exercise02Checker) Check(clientset *kubernetes.Clientset) (*CheckResult, error) {
+	result := &CheckResult{
+		Success:  true,
+		Details:  []string{},
+		Failures: []string{},
+	}
+
+	namespace := "kbx-02"
+
+	// Expected pods with their labels
+	expectedPods := map[string]map[string]string{
+		"frontend": {
+			"app":  "web",
+			"tier": "frontend",
+			"env":  "prod",
+		},
+		"backend": {
+			"app":  "api",
+			"tier": "backend",
+			"env":  "prod",
+		},
+		"worker": {
+			"app":  "processor",
+			"tier": "backend",
+			"env":  "dev",
+		},
+	}
+
+	// Check each pod
+	for podName, expectedLabels := range expectedPods {
+		pod, err := clientset.CoreV1().Pods(namespace).Get(context.Background(), podName, metav1.GetOptions{})
+		if err != nil {
+			result.Success = false
+			result.Failures = append(result.Failures, fmt.Sprintf("❌ Pod '%s' not found in namespace '%s'", podName, namespace))
+			continue
+		}
+
+		result.Details = append(result.Details, fmt.Sprintf("✓ Pod '%s' exists", podName))
+
+		// Check if pod is running
+		if pod.Status.Phase != "Running" {
+			result.Success = false
+			result.Failures = append(result.Failures, fmt.Sprintf("❌ Pod '%s' is in '%s' state, expected 'Running'", podName, pod.Status.Phase))
+		} else {
+			result.Details = append(result.Details, fmt.Sprintf("✓ Pod '%s' is Running", podName))
+		}
+
+		// Check labels
+		for key, expectedValue := range expectedLabels {
+			actualValue, exists := pod.Labels[key]
+			if !exists {
+				result.Success = false
+				result.Failures = append(result.Failures, fmt.Sprintf("❌ Pod '%s' missing label '%s'", podName, key))
+			} else if actualValue != expectedValue {
+				result.Success = false
+				result.Failures = append(result.Failures, fmt.Sprintf("❌ Pod '%s' label '%s' is '%s', expected '%s'", podName, key, actualValue, expectedValue))
+			} else {
+				result.Details = append(result.Details, fmt.Sprintf("✓ Pod '%s' has correct label %s=%s", podName, key, expectedValue))
+			}
 		}
 	}
 

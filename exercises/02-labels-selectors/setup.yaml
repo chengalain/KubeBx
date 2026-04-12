@@ -1,0 +1,8 @@
+# Initial setup for exercise 02
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kbx-02
+  labels:
+    exercise: "02"
+    app.kubernetes.io/managed-by: kubebx

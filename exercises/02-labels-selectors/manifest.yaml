@@ -1,0 +1,4 @@
+id: "02"
+name: "Labels & Selectors"
+type: "build"
+description: "Learn to use labels and selectors to organize and query Kubernetes resources"
