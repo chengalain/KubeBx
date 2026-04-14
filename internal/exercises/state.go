@@ -65,7 +65,7 @@ func GetNextExercise(currentID string) (*Exercise, error) {
 
 	ex, err := FindByID(nextID)
 	if err != nil {
-		return nil, fmt.Errorf("no next exercise found. You've completed all available exercises! 🎉")
+		return nil, fmt.Errorf("no next exercise found. You've completed all available exercises!")
 	}
 
 	return ex, nil

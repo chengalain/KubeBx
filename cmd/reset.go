@@ -18,7 +18,7 @@ This will delete:
   
 You will need to run 'kbx init' again to start fresh.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("⚠️  This will destroy the KubeBx cluster and all exercise data.")
+		fmt.Println("Warning: This will destroy the KubeBx cluster and all exercise data.")
 		fmt.Print("Continue? (y/N): ")
 
 		var response string
@@ -29,7 +29,7 @@ You will need to run 'kbx init' again to start fresh.`,
 			return
 		}
 
-		fmt.Println("\n🗑️  Deleting cluster...")
+		fmt.Println("\nDeleting cluster...")
 
 		// Check if cluster exists
 		exists, err := cluster.ClusterExists()

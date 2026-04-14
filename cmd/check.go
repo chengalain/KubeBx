@@ -24,7 +24,7 @@ var checkCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("🔍 Checking exercise %s: %s\n\n", ex.ID, ex.Name)
+		fmt.Printf("Checking exercise %s: %s\n\n", ex.ID, ex.Name)
 
 		// Get Kubernetes client
 		clientset, err := k8s.GetClient()

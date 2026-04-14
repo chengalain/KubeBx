@@ -26,7 +26,7 @@ This command will:
 
 All tools except Docker are automatically managed by KubeBx.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("🔍 Checking and installing dependencies...\n")
+		fmt.Println("Checking and installing dependencies...\n")
 
 		// Check and install dependencies
 		if err := cluster.CheckAndInstallDependencies(); err != nil {
@@ -51,7 +51,7 @@ All tools except Docker are automatically managed by KubeBx.`,
 		}
 
 		if exists && forceRecreate {
-			fmt.Println("⚠️  Deleting existing cluster...")
+			fmt.Println("Deleting existing cluster...")
 			if err := cluster.DeleteCluster(); err != nil {
 				fmt.Fprintf(os.Stderr, "Error deleting cluster: %v\n", err)
 				os.Exit(1)
@@ -67,7 +67,7 @@ All tools except Docker are automatically managed by KubeBx.`,
 
 		// Set kubeconfig context
 		if err := cluster.SetKubeconfig(); err != nil {
-			fmt.Fprintf(os.Stderr, "\n⚠️  Warning: %v\n", err)
+			fmt.Fprintf(os.Stderr, "\nWarning: %v\n", err)
 			fmt.Println("You may need to run: kubectl config use-context kind-kubebx")
 		}
 

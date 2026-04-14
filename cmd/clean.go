@@ -42,7 +42,7 @@ var cleanCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("🧹 Cleaning exercise %s: %s\n", ex.ID, ex.Name)
+		fmt.Printf("Cleaning exercise %s: %s\n", ex.ID, ex.Name)
 
 		// Get Kubernetes client
 		clientset, err := k8s.GetClient()
@@ -65,7 +65,7 @@ var cleanCmd = &cobra.Command{
 }
 
 func cleanAllExercises() {
-	fmt.Println("🧹 Cleaning all exercises...")
+	fmt.Println("Cleaning all exercises...")
 
 	// Get Kubernetes client
 	clientset, err := k8s.GetClient()
@@ -86,7 +86,7 @@ func cleanAllExercises() {
 		if len(ns.Name) >= 4 && ns.Name[:4] == "kbx-" {
 			err := clientset.CoreV1().Namespaces().Delete(context.Background(), ns.Name, metav1.DeleteOptions{})
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "⚠️  Failed to delete namespace %s: %v\n", ns.Name, err)
+				fmt.Fprintf(os.Stderr, "Warning: Failed to delete namespace %s: %v\n", ns.Name, err)
 				continue
 			}
 			fmt.Printf("✓ Deleted namespace %s\n", ns.Name)

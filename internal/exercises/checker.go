@@ -90,7 +90,7 @@ func (c *Exercise01Checker) Check(clientset *kubernetes.Clientset) (*CheckResult
 	}
 
 	if result.Success {
-		result.Message = "All checks passed! 🎉"
+		result.Message = "All checks passed!"
 	} else {
 		result.Message = "Some checks failed"
 	}
@@ -164,7 +164,7 @@ func (c *Exercise02Checker) Check(clientset *kubernetes.Clientset) (*CheckResult
 	}
 
 	if result.Success {
-		result.Message = "All checks passed! 🎉"
+		result.Message = "All checks passed!"
 	} else {
 		result.Message = "Some checks failed"
 	}

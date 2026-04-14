@@ -25,14 +25,14 @@ var startCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("🚀 Starting exercise %s: %s\n", ex.ID, ex.Name)
+		fmt.Printf("Starting exercise %s: %s\n", ex.ID, ex.Name)
 		fmt.Printf("Type: %s\n\n", ex.Type)
 
 		// Check if setup.yaml exists
 		setupPath := filepath.Join(ex.Path, "setup.yaml")
 		if _, err := os.Stat(setupPath); os.IsNotExist(err) {
 			fmt.Println("✓ No initial setup required for this exercise")
-			fmt.Println("\n📖 Read the instructions:")
+			fmt.Println("\nRead the instructions:")
 			readmePath := filepath.Join(ex.Path, "README.md")
 			fmt.Printf("   cat %s\n", readmePath)
 			return
@@ -48,10 +48,10 @@ var startCmd = &cobra.Command{
 		}
 
 		fmt.Println("\n✅ Exercise environment ready!")
-		fmt.Println("\n💡 Using kubectl:")
+		fmt.Println("\nUsing kubectl:")
 		fmt.Println("   Use 'kbx kubectl' for all kubectl commands")
 		fmt.Println("   Example: kbx kubectl get pods -n kbx-01")
-		fmt.Println("\n📖 Next steps:")
+		fmt.Println("\nNext steps:")
 		readmePath := filepath.Join(ex.Path, "README.md")
 		fmt.Printf("   1. Read instructions: cat %s\n", readmePath)
 		fmt.Printf("   2. Work on the exercise using 'kbx kubectl'\n")
