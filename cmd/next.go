@@ -43,13 +43,20 @@ Examples:
 		if len(args) > 0 {
 			currentID = args[0]
 		} else {
-			// Auto-detect
-			detected, err := exercises.GetCurrentExercise(clientset)
+			// Auto-detect and check for multiple active exercises
+			detected, activeExercises, err := exercises.GetCurrentExerciseWithContext(clientset)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "❌ %v\n", err)
 				os.Exit(1)
 			}
+
 			currentID = detected
+
+			// Warn if multiple exercises are active
+			if len(activeExercises) > 1 {
+				fmt.Printf("⚠️  Multiple exercises active: %s\n", formatExerciseList(activeExercises))
+				fmt.Printf("Using the most recent: %s\n\n", currentID)
+			}
 		}
 
 		// Verify current exercise exists
@@ -77,6 +84,8 @@ Examples:
 		next, err := exercises.GetNextExercise(currentID)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\n%v\n", err)
+			fmt.Println("\n💡 Tip: Specify which exercise to move from:")
+			fmt.Printf("  kbx next %s\n", currentID)
 			return
 		}
 
@@ -103,6 +112,17 @@ Examples:
 		fmt.Printf("   3. Check your solution: kbx check %s\n", next.ID)
 		fmt.Printf("   4. Need help? kbx hint %s\n", next.ID)
 	},
+}
+
+func formatExerciseList(exercises []string) string {
+	result := ""
+	for i, ex := range exercises {
+		if i > 0 {
+			result += ", "
+		}
+		result += ex
+	}
+	return result
 }
 
 func init() {
