@@ -18,7 +18,7 @@ This will delete:
   
 You will need to run 'kbx init' again to start fresh.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Warning: This will destroy the KubeBx cluster and all exercise data.")
+		fmt.Println("⚠️  This will destroy the KubeBx cluster and all exercise data.")
 		fmt.Print("Continue? (y/N): ")
 
 		var response string
@@ -29,13 +29,13 @@ You will need to run 'kbx init' again to start fresh.`,
 			return
 		}
 
-		fmt.Println("\nDeleting cluster...")
+		fmt.Println("\n🗑️  Deleting cluster...")
 
 		// Check if cluster exists
 		exists, err := cluster.ClusterExists()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error checking cluster: %v\n", err)
-			os.Exit(1)
+			fmt.Println("\nTrying to delete anyway...")
 		}
 
 		if !exists {
@@ -43,9 +43,11 @@ You will need to run 'kbx init' again to start fresh.`,
 			return
 		}
 
-		// Delete cluster
+		// Delete cluster using Kind directly (not kubectl)
 		if err := cluster.DeleteCluster(); err != nil {
 			fmt.Fprintf(os.Stderr, "❌ Failed to delete cluster: %v\n", err)
+			fmt.Println("\n💡 Manual cleanup:")
+			fmt.Printf("   %s delete cluster --name kubebx\n", cluster.GetKindCommand())
 			os.Exit(1)
 		}
 
