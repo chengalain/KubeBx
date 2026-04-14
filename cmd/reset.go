@@ -29,7 +29,7 @@ You will need to run 'kbx init' again to start fresh.`,
 			return
 		}
 
-		fmt.Println("\n🗑️  Deleting cluster...")
+		fmt.Println("\n  Deleting cluster...")
 
 		// Check if cluster exists
 		exists, err := cluster.ClusterExists()
@@ -46,7 +46,7 @@ You will need to run 'kbx init' again to start fresh.`,
 		// Delete cluster using Kind directly (not kubectl)
 		if err := cluster.DeleteCluster(); err != nil {
 			fmt.Fprintf(os.Stderr, "❌ Failed to delete cluster: %v\n", err)
-			fmt.Println("\n💡 Manual cleanup:")
+			fmt.Println("\n Manual cleanup:")
 			fmt.Printf("   %s delete cluster --name kubebx\n", cluster.GetKindCommand())
 			os.Exit(1)
 		}
