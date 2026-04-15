@@ -3,11 +3,11 @@
 **Type:** Build  
 **Difficulty:** Beginner
 
-## 🎯 Goal
+##  Goal
 
 Learn how to use labels to organize pods and selectors to query them.
 
-## 📝 Tasks
+##  Tasks
 
 Create three pods in the `kbx-02` namespace with the following specifications:
 
@@ -35,14 +35,14 @@ Create three pods in the `kbx-02` namespace with the following specifications:
   - `tier=backend`
   - `env=dev`
 
-## ✅ Success Criteria
+##  Success Criteria
 
 - All three pods exist in the `kbx-02` namespace
 - All pods are in `Running` state
 - Each pod has the correct labels assigned
 - You can query pods using label selectors
 
-## 💡 Tips
+##  Tips
 
 - Use `kbx kubectl run` with `--labels` flag to create pods with labels
 - Use `kbx kubectl get pods -l <selector>` to query by labels
@@ -61,6 +61,6 @@ kbx kubectl get pods -l env=prod -n kbx-02
 kbx kubectl get pods -l tier=backend -n kbx-02
 ```
 
-## 🆘 Stuck?
+##  Stuck?
 
 Run `kbx hint 02` for a hint!
