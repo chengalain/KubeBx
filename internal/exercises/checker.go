@@ -28,6 +28,8 @@ func NewChecker(exerciseID string) (Checker, error) {
 		return &Exercise01Checker{}, nil
 	case "02":
 		return &Exercise02Checker{}, nil
+	case "03":
+		return &Exercise03Checker{}, nil
 	default:
 		return nil, fmt.Errorf("no checker available for exercise %s", exerciseID)
 	}
@@ -160,6 +162,88 @@ func (c *Exercise02Checker) Check(clientset *kubernetes.Clientset) (*CheckResult
 			} else {
 				result.Details = append(result.Details, fmt.Sprintf("✓ Pod '%s' has correct label %s=%s", podName, key, expectedValue))
 			}
+		}
+	}
+
+	if result.Success {
+		result.Message = "All checks passed!"
+	} else {
+		result.Message = "Some checks failed"
+	}
+
+	return result, nil
+}
+
+// Exercise03Checker checks exercise 03 (Service broken)
+type Exercise03Checker struct{}
+
+func (c *Exercise03Checker) Check(clientset *kubernetes.Clientset) (*CheckResult, error) {
+	result := &CheckResult{
+		Success:  true,
+		Details:  []string{},
+		Failures: []string{},
+	}
+
+	namespace := "kbx-03"
+	podName := "nginx-pod"
+	svcName := "nginx-service"
+
+	// Check pod exists and is running
+	pod, err := clientset.CoreV1().Pods(namespace).Get(context.Background(), podName, metav1.GetOptions{})
+	if err != nil {
+		result.Success = false
+		result.Failures = append(result.Failures, fmt.Sprintf("❌ Pod '%s' not found in namespace '%s'", podName, namespace))
+		result.Message = "Pod not found"
+		return result, nil
+	}
+	result.Details = append(result.Details, fmt.Sprintf("✓ Pod '%s' exists", podName))
+
+	if pod.Status.Phase != "Running" {
+		result.Success = false
+		result.Failures = append(result.Failures, fmt.Sprintf("❌ Pod '%s' is in '%s' state, expected 'Running'", podName, pod.Status.Phase))
+	} else {
+		result.Details = append(result.Details, fmt.Sprintf("✓ Pod '%s' is Running", podName))
+	}
+
+	// Check service exists
+	svc, err := clientset.CoreV1().Services(namespace).Get(context.Background(), svcName, metav1.GetOptions{})
+	if err != nil {
+		result.Success = false
+		result.Failures = append(result.Failures, fmt.Sprintf("❌ Service '%s' not found in namespace '%s'", svcName, namespace))
+		result.Message = "Some checks failed"
+		return result, nil
+	}
+	result.Details = append(result.Details, fmt.Sprintf("✓ Service '%s' exists", svcName))
+
+	// Check selector matches pod labels
+	for key, svcVal := range svc.Spec.Selector {
+		podVal, exists := pod.Labels[key]
+		if !exists {
+			result.Success = false
+			result.Failures = append(result.Failures, fmt.Sprintf("❌ Service selector '%s=%s' does not match: pod has no label '%s'", key, svcVal, key))
+		} else if podVal != svcVal {
+			result.Success = false
+			result.Failures = append(result.Failures, fmt.Sprintf("❌ Service selector '%s=%s' does not match pod label '%s=%s'", key, svcVal, key, podVal))
+		} else {
+			result.Details = append(result.Details, fmt.Sprintf("✓ Service selector %s=%s matches pod label", key, svcVal))
+		}
+	}
+
+	// Check endpoints have at least one ready address
+	endpoints, err := clientset.CoreV1().Endpoints(namespace).Get(context.Background(), svcName, metav1.GetOptions{})
+	if err != nil {
+		result.Success = false
+		result.Failures = append(result.Failures, fmt.Sprintf("❌ Could not retrieve endpoints for Service '%s'", svcName))
+	} else {
+		readyCount := 0
+		for _, subset := range endpoints.Subsets {
+			readyCount += len(subset.Addresses)
+		}
+		if readyCount == 0 {
+			result.Success = false
+			result.Failures = append(result.Failures, fmt.Sprintf("❌ Service '%s' has no ready endpoints — selector may not match any pod", svcName))
+		} else {
+			result.Details = append(result.Details, fmt.Sprintf("✓ Service '%s' has %d ready endpoint(s)", svcName, readyCount))
 		}
 	}
 

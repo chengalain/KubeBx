@@ -1,0 +1,4 @@
+id: "03"
+name: "Service broken"
+type: "debug"
+description: "A pod is running but the Service is not routing traffic. Find and fix the problem."

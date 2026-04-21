@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kbx-03
+  labels:
+    exercise: "03"
+    app.kubernetes.io/managed-by: kubebx
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  namespace: kbx-03
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: kbx-03
+spec:
+  selector:
+    app: nginxx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
