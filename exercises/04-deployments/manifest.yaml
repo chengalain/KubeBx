@@ -1,0 +1,4 @@
+id: "04"
+name: "Deployments"
+type: "build"
+description: "Create your first Deployment and discover why it's better than a bare pod."

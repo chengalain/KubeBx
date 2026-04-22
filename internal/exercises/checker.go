@@ -30,6 +30,8 @@ func NewChecker(exerciseID string) (Checker, error) {
 		return &Exercise02Checker{}, nil
 	case "03":
 		return &Exercise03Checker{}, nil
+	case "04":
+		return &Exercise04Checker{}, nil
 	default:
 		return nil, fmt.Errorf("no checker available for exercise %s", exerciseID)
 	}
@@ -244,6 +246,73 @@ func (c *Exercise03Checker) Check(clientset *kubernetes.Clientset) (*CheckResult
 			result.Failures = append(result.Failures, fmt.Sprintf("❌ Service '%s' has no ready endpoints — selector may not match any pod", svcName))
 		} else {
 			result.Details = append(result.Details, fmt.Sprintf("✓ Service '%s' has %d ready endpoint(s)", svcName, readyCount))
+		}
+	}
+
+	if result.Success {
+		result.Message = "All checks passed!"
+	} else {
+		result.Message = "Some checks failed"
+	}
+
+	return result, nil
+}
+
+// Exercise04Checker checks exercise 04 (Deployments)
+type Exercise04Checker struct{}
+
+func (c *Exercise04Checker) Check(clientset *kubernetes.Clientset) (*CheckResult, error) {
+	result := &CheckResult{
+		Success:  true,
+		Details:  []string{},
+		Failures: []string{},
+	}
+
+	namespace := "kbx-04"
+	deployName := "nginx-deployment"
+
+	// Check deployment exists
+	deploy, err := clientset.AppsV1().Deployments(namespace).Get(context.Background(), deployName, metav1.GetOptions{})
+	if err != nil {
+		result.Success = false
+		result.Failures = append(result.Failures, fmt.Sprintf("❌ Deployment '%s' not found in namespace '%s'", deployName, namespace))
+		result.Message = "Deployment not created yet"
+		return result, nil
+	}
+	result.Details = append(result.Details, fmt.Sprintf("✓ Deployment '%s' exists", deployName))
+
+	// Check replicas spec
+	specReplicas := int32(1)
+	if deploy.Spec.Replicas != nil {
+		specReplicas = *deploy.Spec.Replicas
+	}
+	if specReplicas != 3 {
+		result.Success = false
+		result.Failures = append(result.Failures, fmt.Sprintf("❌ Deployment spec has %d replica(s), expected 3", specReplicas))
+	} else {
+		result.Details = append(result.Details, "✓ Deployment spec declares 3 replicas")
+	}
+
+	// Check ready replicas
+	ready := deploy.Status.ReadyReplicas
+	if ready < 3 {
+		result.Success = false
+		result.Failures = append(result.Failures, fmt.Sprintf("❌ Only %d/3 replicas are Ready", ready))
+	} else {
+		result.Details = append(result.Details, fmt.Sprintf("✓ %d/3 replicas are Ready", ready))
+	}
+
+	// Check image
+	if len(deploy.Spec.Template.Spec.Containers) == 0 {
+		result.Success = false
+		result.Failures = append(result.Failures, "❌ Deployment has no containers defined")
+	} else {
+		image := deploy.Spec.Template.Spec.Containers[0].Image
+		if image != "nginx:latest" && image != "nginx" {
+			result.Success = false
+			result.Failures = append(result.Failures, fmt.Sprintf("❌ Container image is '%s', expected 'nginx:latest'", image))
+		} else {
+			result.Details = append(result.Details, fmt.Sprintf("✓ Container using image '%s'", image))
 		}
 	}
 

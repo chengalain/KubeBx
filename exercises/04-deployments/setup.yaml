@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kbx-04
+  labels:
+    exercise: "04"
+    app.kubernetes.io/managed-by: kubebx
