@@ -1,12 +1,16 @@
 package cmd
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/cheng-alain/kubebx/internal/exercises"
 	"github.com/cheng-alain/kubebx/internal/k8s"
 	"github.com/spf13/cobra"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 var checkCmd = &cobra.Command{
@@ -66,6 +70,15 @@ var checkCmd = &cobra.Command{
 
 		// Final message
 		if result.Success {
+			// Mark namespace as completed
+			namespace := fmt.Sprintf("kbx-%s", ex.ID)
+			patch, _ := json.Marshal(map[string]interface{}{
+				"metadata": map[string]interface{}{
+					"labels": map[string]string{"kubebx/completed": "true"},
+				},
+			})
+			clientset.CoreV1().Namespaces().Patch(context.Background(), namespace, types.MergePatchType, patch, metav1.PatchOptions{})
+
 			fmt.Println("✅", result.Message)
 			fmt.Println("\nCongratulations! You can move to the next exercise:")
 			fmt.Println("  kbx next")

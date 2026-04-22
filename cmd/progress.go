@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/cheng-alain/kubebx/internal/exercises"
 	"github.com/cheng-alain/kubebx/internal/k8s"
 	"github.com/spf13/cobra"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var progressCmd = &cobra.Command{
@@ -27,35 +29,42 @@ var progressCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println("Progress Overview")
 			fmt.Println("(Cluster not running - start with 'kbx init')")
-			displayExerciseList(exs, nil)
+			displayExerciseList(exs, nil, nil)
 			return
 		}
 
-		// Get active exercises
-		_, activeExercises, err := exercises.GetCurrentExerciseWithContext(clientset)
-		if err != nil && len(activeExercises) == 0 {
-			activeExercises = []string{}
-		}
-
+		// List all namespaces to build active/completed maps
+		namespaces, err := clientset.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
 		activeMap := make(map[string]bool)
-		for _, id := range activeExercises {
-			activeMap[id] = true
+		completedMap := make(map[string]bool)
+		if err == nil {
+			for _, ns := range namespaces.Items {
+				if len(ns.Name) >= 5 && ns.Name[:4] == "kbx-" {
+					id := ns.Name[4:]
+					activeMap[id] = true
+					if ns.Labels["kubebx/completed"] == "true" {
+						completedMap[id] = true
+					}
+				}
+			}
 		}
 
 		fmt.Println("Progress Overview")
 		fmt.Println()
-		displayExerciseList(exs, activeMap)
+		displayExerciseList(exs, activeMap, completedMap)
 
 		// Summary
 		total := len(exs)
-		active := len(activeExercises)
+		completed := len(completedMap)
+		active := len(activeMap) - completed
 
 		fmt.Println("\n" + strings.Repeat("─", 50))
 		fmt.Printf("Total exercises: %d\n", total)
-		fmt.Printf("Active: %d\n", active)
-		fmt.Printf("Remaining: %d\n", total-active)
+		fmt.Printf("Completed: %d\n", completed)
+		fmt.Printf("In progress: %d\n", active)
+		fmt.Printf("Remaining: %d\n", total-len(activeMap))
 
-		if active > 0 {
+		if len(activeMap) > 0 {
 			fmt.Println("\nNext steps:")
 			fmt.Println("   Continue: kbx next")
 			fmt.Println("   Check solution: kbx check <id>")
@@ -66,7 +75,7 @@ var progressCmd = &cobra.Command{
 	},
 }
 
-func displayExerciseList(exs []exercises.Exercise, activeMap map[string]bool) {
+func displayExerciseList(exs []exercises.Exercise, activeMap map[string]bool, completedMap map[string]bool) {
 	for _, ex := range exs {
 		status := "[ ]"
 		statusText := "Not started"
@@ -74,6 +83,10 @@ func displayExerciseList(exs []exercises.Exercise, activeMap map[string]bool) {
 		if activeMap != nil && activeMap[ex.ID] {
 			status = "[>]"
 			statusText = "In progress"
+		}
+		if completedMap != nil && completedMap[ex.ID] {
+			status = "[✓]"
+			statusText = "Completed"
 		}
 
 		typeLabel := fmt.Sprintf("[%s]", ex.Type)
